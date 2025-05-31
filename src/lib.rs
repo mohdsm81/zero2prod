@@ -19,6 +19,23 @@ use std::{io::Result, net::TcpListener};
 
 use actix_web::{App, HttpResponse, HttpServer, web};
 
+#[derive(serde::Deserialize)]
+struct FormData {
+    email: String,
+    name: String,
+}
+
+async fn subscribe(form: web::Form<FormData>) -> HttpResponse {
+    // print!("{}", &_form.name);
+    // print!("{}", &_form.email);
+
+    if !form.name.is_empty() && !form.email.is_empty() {
+        return HttpResponse::Ok().finish();
+    }
+
+    HttpResponse::Ok().finish()
+}
+
 async fn health_check() -> HttpResponse {
     HttpResponse::Ok().finish()
 }
@@ -26,9 +43,13 @@ async fn health_check() -> HttpResponse {
 // It is no longer a binary entrypoint, therefore we can mark it as async
 // without having to use any proc-macro incantation.
 pub fn run(listener: TcpListener) -> Result<Server> {
-    let server = HttpServer::new(|| App::new().route("/health_check", web::get().to(health_check)))
-        .listen(listener)?
-        .run();
+    let server = HttpServer::new(|| {
+        App::new()
+            .route("/health_check", web::get().to(health_check))
+            .route("/subscription", web::post().to(subscribe))
+    })
+    .listen(listener)?
+    .run();
     // .await
 
     Ok(server)
