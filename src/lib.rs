@@ -26,13 +26,12 @@ struct FormData {
 }
 
 async fn subscribe(form: web::Form<FormData>) -> HttpResponse {
-    // print!("{}", &_form.name);
-    // print!("{}", &_form.email);
-
-    if !form.name.is_empty() && !form.email.is_empty() {
-        return HttpResponse::Ok().finish();
+    // error path
+    if form.name.is_empty() || form.email.is_empty() {
+        return HttpResponse::build(actix_web::http::StatusCode::BAD_REQUEST).finish();
     }
 
+    // ok path
     HttpResponse::Ok().finish()
 }
 
